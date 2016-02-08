@@ -1,0 +1,41 @@
+Class: MapGraph
+
+Modifications made to MapGraph :
+
+private attribute is a map of GeographicalPoint and MapVertex
+
+add a private method to retrieve the path once the shortest one is found:
+	private List<GeographicPoint> RetrievePath(Map<GeographicPoint, GeographicPoint> parentMap, 
+											   GeographicPoint start, GeographicPoint goal)
+
+Class name: [MapVertex]
+
+Purpose and description of class:
+
+MapVetrx represents the node in MapGraph
+
+private attributes: location - location of the vertex 
+					edges - all edges connected to this vertex as a list
+methods: public void ConnectTo(MapEdge edge) - add a new edge to this vertex
+		 public int getSize() - return the number of edges that connected to this vertex
+
+Class name: [MapEdge]
+
+Purpose and description of class:
+
+MapEdge represents the edge in MapGraph
+
+private attributs:  private GeographicPoint start - location of the starting point
+					private GeographicPoint end - location of the ending point
+					private String roadName - name of the road
+					private String roadType - type of the road
+					private double roadLength - length of the road
+					
+methods: a bunch of getter
+
+
+Overall Design Justification:
+There are two separate classes MapVertex and MapEdge to represent the nodes and edges in MapGraph. 
+All the edges are stored in MapVertex objects associated with the edges' start location, therefore,
+MapGraph only keeps the references to all the vertices in the graph. However, as the interfaces of
+the methods in MapGraph are the locations, I use a map to associate each MapVertex with its location.
