@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -133,7 +134,7 @@ public class MapGraph {
 			throw new IllegalArgumentException("arguments are not valid");
 		}
 		
-		MapEdge edge = new MapEdge(from, to, roadName, roadType, length);
+		MapEdge edge = new MapEdge(Vertices.get(from), Vertices.get(to), roadName, roadType, length);
 		MapVertex vertex = Vertices.get(from); // find the associated vertex
 		vertex.ConnectTo(edge); // add the newly created edge to vertex
 	}
@@ -180,13 +181,14 @@ public class MapGraph {
 				return RetrievePath(parentMap, start, goal); // retrieve the path
 			}
 			MapVertex node = Vertices.get(curr); // the MapVertex associated with the location curr
-			List<MapEdge> edges = node.getEdges(); // the edges connected to the node
+			Set<MapEdge> edges = node.getEdges(); // the edges connected to the node
 			for(MapEdge edge : edges){ 
-				GeographicPoint next = edge.getEnd(); // neighbor of the location curr
-				if(!visited.contains(next)){
-					visited.add(next);
-					parentMap.put(next, curr); // set curr as the parent of next in tha path map
-					queue.add(next);
+				MapVertex next = edge.getEnd(); // neighbor of the location curr
+				GeographicPoint nextLoc = next.getLocation();
+				if(!visited.contains(nextLoc)){
+					visited.add(nextLoc);
+					parentMap.put(nextLoc, curr); // set curr as the parent of next in tha path map
+					queue.add(nextLoc);
 				}
 			}
 		}
@@ -205,6 +207,19 @@ public class MapGraph {
 		path.add(0, curr);
 		
 		return path;
+	}
+	
+	
+	/**
+	 * Set the distances from each vertex to the starting point as appropriate
+	 */
+	private void setDistances(GeographicPoint start){
+		Collection<MapVertex> allNodes = Vertices.values();
+		for(MapVertex node : allNodes){
+			node.setDistFromStart(Double.POSITIVE_INFINITY);
+		}
+		MapVertex source = Vertices.get(start); 
+		source.setDistFromStart(0.0); // start to itself is of 0 distance
 	}
 	
 
@@ -237,6 +252,32 @@ public class MapGraph {
 
 		// Hook for visualization.  See writeup.
 		//nodeSearched.accept(next.getLocation());
+		
+		PriorityQueue<MapVertex> pq = new PriorityQueue<MapVertex>();
+		Set<MapVertex> visited = new HashSet<MapVertex>();
+		Map<GeographicPoint, GeographicPoint> parentMap = new HashMap<GeographicPoint, GeographicPoint>();
+		setDistances(start);
+		pq.add(Vertices.get(start)); // put the start node into the PQ
+		while(!pq.isEmpty()){
+			MapVertex curr = pq.poll();
+			if(!visited.contains(curr)){
+				visited.add(curr);
+				if(curr.getLocation().equals(goal))
+					return RetrievePath(parentMap, start, goal);; // retrieve the shortest path
+				Set<MapEdge> edges = curr.getEdges();
+				for(MapEdge edge : edges){
+					MapVertex next = edge.getEnd();
+					if(!visited.contains(next)){
+						double currLen = curr.getDistFromStart() + edge.getRoadLength();
+						if(currLen < next.getDistFromStart()){
+							next.setDistFromStart(currLen); //update shortest distance to the start
+							parentMap.put(next.getLocation(), curr.getLocation()); // update the parent-child relation
+							pq.add(next);
+						}
+					}
+				}
+			}
+		}
 		
 		return null;
 	}
