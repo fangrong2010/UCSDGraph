@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.HashSet;
 import geography.GeographicPoint;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * a class to represent a vertex in a graph
@@ -106,5 +107,30 @@ public class MapVertex implements Comparable<MapVertex>{
 			return 1;
 		else
 			return 0;
+	}
+	
+	public static Comparator<MapVertex> AStarComparator = new Comparator<MapVertex>(){
+		public int compare(MapVertex v1, MapVertex v2){
+			if((v1.distFromStart+v1.predictedDistToEnd) - (v2.distFromStart+v2.predictedDistToEnd) < 0)
+				return -1;
+			else if((v1.distFromStart+v1.predictedDistToEnd) - (v2.distFromStart+v2.predictedDistToEnd) > 0)
+				return 1;
+			else
+				return 0;
+		}
+	};
+	
+	/** ToString to print out a MapNode method
+	 *  @return the string representation of a MapNode
+	 */
+	public String toString()
+	{
+		String toReturn = "[NODE at location (" + this.location + ")";
+		toReturn += " intersects streets: ";
+		for (MapEdge e: edges) {
+			toReturn += e.getRoadName() + ", ";
+		}
+		toReturn += "]";
+		return toReturn;
 	}
 }

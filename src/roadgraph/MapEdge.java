@@ -85,4 +85,16 @@ public class MapEdge {
 	public double getRoadLength(){
 		return this.roadLength;
 	}
+	
+	// return String containing details about the edge
+	public String toString()
+	{
+		String toReturn = "[EDGE between ";
+		toReturn += "\n\t" + start.getLocation();
+		toReturn += "\n\t" + end.getLocation();
+		toReturn += "\nRoad name: " + roadName + " Road type: " + roadType +
+				" Segment length: " + String.format("%.3g", roadLength) + "km";
+		
+		return toReturn;
+	}
 }
